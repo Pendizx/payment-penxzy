@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penxzy Official - Payment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('https://files.catbox.moe/9bg7ox.jpg') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: -1;
+        }
+
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://files.catbox.moe/9bg7ox.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeOut 0.5s ease-in-out 1s forwards;
+        }
+
+        .loader::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .loader-content {
+            text-align: center;
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        .loader-text {
+            font-size: 24px;
+            font-weight: bold;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .container {
+            max-width: 420px;
+            width: 100%;
+            animation: fadeInUp 0.6s ease-out 1.2s backwards;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #4a90e2 0%, #5ba3f5 100%);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header h1 {
+            color: #ffffff;
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            color: #f0f8ff;
+            font-size: 16px;
+        }
+
+        .payment-methods {
+            display: grid;
+            gap: 15px;
+        }
+
+        .payment-btn {
+            background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #000000 100%);
+            border: none;
+            padding: 18px 24px;
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .payment-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(13, 27, 42, 0.6);
+        }
+
+        .payment-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .payment-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: white;
+        }
+
+        .payment-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #4a90e2 0%, #5ba3f5 100%);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            animation: scaleIn 0.3s ease-out;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            font-size: 28px;
+            color: #fff;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: #fff;
+        }
+
+        .modal-header {
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            color: #ffffff;
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .payment-info {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .payment-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 15px 0;
+            letter-spacing: 1px;
+        }
+
+        .qris-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #000000 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13, 27, 42, 0.5);
+        }
+
+        .unavailable-message {
+            color: #e74c3c;
+            font-size: 18px;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+
+        .info-text {
+            color: #f0f8ff;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 26px;
+            }
+
+            .payment-btn {
+                font-size: 16px;
+                padding: 15px 20px;
+            }
+
+            .modal-content {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader">
+        <div class="loader-content">
+            <div class="loader-spinner"></div>
+            <div class="loader-text">Penxzy Official</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="logo">
+                    <img src="https://files.catbox.moe/2y0z4g.jpg" alt="Penxzy Official">
+                </div>
+                <h1>Penxzy Official</h1>
+                <p>Pilih Metode Pembayaran</p>
+            </div>
+
+            <div class="payment-methods">
+                <button class="payment-btn" onclick="openModal('dana')">
+                    <div class="payment-icon">
+                        <img src="https://files.catbox.moe/exdsmx.jpg" alt="DANA">
+                    </div>
+                    <span>DANA</span>
+                </button>
+
+                <button class="payment-btn" onclick="openModal('qris')">
+                    <div class="payment-icon">
+                        <img src="https://files.catbox.moe/1y805e.jpg" alt="QRIS">
+                    </div>
+                    <span>QRIS</span>
+                </button>
+
+                <button class="payment-btn" onclick="openModal('ovo')">
+                    <div class="payment-icon">
+                        <img src="https://files.catbox.moe/mga3vs.jpg" alt="OVO">
+                    </div>
+                    <span>OVO</span>
+                </button>
+
+                <button class="payment-btn" onclick="openModal('gopay')">
+                    <div class="payment-icon">
+                        <img src="https://files.catbox.moe/vp9ldi.jpg" alt="GoPay">
+                    </div>
+                    <span>GoPay</span>
+                </button>
+
+                <button class="payment-btn" onclick="openModal('shopee')">
+                    <div class="payment-icon">
+                        <img src="https://files.catbox.moe/icibpw.jpg" alt="ShopeePay">
+                    </div>
+                    <span>ShopeePay</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal DANA -->
+    <div id="modal-dana" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('dana')">&times;</button>
+            <div class="modal-header">
+                <h2>DANA</h2>
+            </div>
+            <div class="payment-info">
+                <p style="color: #666; font-size: 16px;">Nomor DANA</p>
+                <div class="payment-number" id="dana-number">085711306984</div>
+                <button class="copy-btn" onclick="copyToClipboard('085711306984')">Salin Nomor</button>
+            </div>
+            <p class="info-text">Silakan transfer ke nomor DANA di atas</p>
+        </div>
+    </div>
+
+    <!-- Modal QRIS -->
+    <div id="modal-qris" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('qris')">&times;</button>
+            <div class="modal-header">
+                <h2>QRIS</h2>
+            </div>
+            <div class="payment-info">
+                <p style="color: #666; font-size: 16px;">Scan QR Code</p>
+                <img src="https://files.catbox.moe/vvhhvn.jpg" alt="QRIS Code" class="qris-image">
+            </div>
+            <p class="info-text">Scan QR Code menggunakan aplikasi pembayaran Anda</p>
+        </div>
+    </div>
+
+    <!-- Modal Unavailable -->
+    <div id="modal-unavailable" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('unavailable')">&times;</button>
+            <div class="modal-header">
+                <h2 id="unavailable-title">Pembayaran</h2>
+            </div>
+            <div class="payment-info">
+                <p class="unavailable-message">Metode pembayaran belum tersedia</p>
+            </div>
+            <p class="info-text">Silakan gunakan metode pembayaran lain</p>
+        </div>
+    </div>
+
+    <script>
+        function openModal(type) {
+            if (type === 'dana') {
+                document.getElementById('modal-dana').classList.add('active');
+            } else if (type === 'qris') {
+                document.getElementById('modal-qris').classList.add('active');
+            } else {
+                const titles = {
+                    'ovo': 'OVO',
+                    'gopay': 'GoPay',
+                    'shopee': 'ShopeePay'
+                };
+                document.getElementById('unavailable-title').textContent = titles[type];
+                document.getElementById('modal-unavailable').classList.add('active');
+            }
+        }
+
+        function closeModal(type) {
+            if (type === 'dana') {
+                document.getElementById('modal-dana').classList.remove('active');
+            } else if (type === 'qris') {
+                document.getElementById('modal-qris').classList.remove('active');
+            } else {
+                document.getElementById('modal-unavailable').classList.remove('active');
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Tersalin!';
+                btn.style.background = 'linear-gradient(135deg, #27ae60 0%, #229954 100%)';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = 'linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #000000 100%)';
+                }, 2000);
+            });
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>
